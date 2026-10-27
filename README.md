@@ -38,8 +38,12 @@ This sandbox is used to define end-to-end QA processes, test matrices, manual ex
 ```text
 mediplus-qa/
 ├── app/
-│   └── mda-2.3.0-27.apk        # Stand-in APK for test execution
-└── README.md                   # Repository & sandbox documentation
+│   └── mda-2.3.0-27.apk                                      # Stand-in APK for test execution
+├── docs/                                                     # QA documentation & test artifacts
+│   ├── overview/
+│   │   └── Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf   # Executive project overview brief
+│   └── screenshots/                                          # Emulator verification & test evidence
+└── README.md                                                 # Repository & sandbox documentation
 ```
 
 ---
