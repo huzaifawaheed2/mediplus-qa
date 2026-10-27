@@ -42,7 +42,8 @@ mediplus-qa/
 ├── docs/                                                     # QA documentation & test artifacts
 │   ├── overview/
 │   │   └── Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf   # Executive project overview brief
-│   └── screenshots/                                          # Emulator verification & test evidence
+│   └── screenshots/
+│       └── emulator_setup.png                                # Pixel 4 API 33 emulator verification proof
 └── README.md                                                 # Repository & sandbox documentation
 ```
 
