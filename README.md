@@ -3,8 +3,8 @@
 ### Enterprise QA Testing Sandbox & Test Artifacts Repository
 
 [![QA Status](https://img.shields.io/badge/QA%20Status-In%20Progress-0052CC.svg)](#)
-[![Target Platform](<https://img.shields.io/badge/Platform-Android%2013%20(API%2033)-3DDC84.svg?logo=android&logoColor=white>)](#)
-[![Virtual Device](https://img.shields.io/badge/Device-Pixel%204-4285F4.svg?logo=google&logoColor=white)](#)
+[![Target Platform](https://img.shields.io/badge/Platform-Android%2013%20%7C%20Android%2011-3DDC84.svg?logo=android&logoColor=white)](#)
+[![Virtual Devices](<https://img.shields.io/badge/Devices-Pixel%204%20(API%2033)%20%7C%20Nexus%205X%20(API%2030)-4285F4.svg?logo=google&logoColor=white>)](#)
 [![Stand-in App](https://img.shields.io/badge/Sandbox%20App-Sauce%20Labs%20v2.3.0-EA4335.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](#)
 
@@ -33,9 +33,10 @@ mediplus-qa/
 │   ├── overview/
 │   │   └── Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf   # Executive project overview brief
 │   ├── screenshots/
-│   │   └── emulator_setup.png                                # Pixel 4 API 33 emulator verification proof
+│   │   ├── emulator_setup.png                                # Pixel 4 API 33 emulator verification proof
+│   │   └── Bug_Screenshots/                                  # Visual evidence for logged defects (BUG_001 to BUG_005)
 │   └── test-cases/
-│       └── MediPlus_Test_Cases.xlsx                          # 15-scenario functional & negative test matrix
+│       └── MediPlus_Test_Cases.xlsx                          # Master QA workbook (Test Cases, Execution Matrix, Bug Log)
 └── README.md                                                 # Repository documentation & QA guide
 ```
 
@@ -43,24 +44,26 @@ mediplus-qa/
 
 ## QA Sandbox & Test Environment Architecture
 
-The testing environment is configured to mirror real-world customer device specifications:
+The testing sandbox incorporates multiple virtual device profiles to validate backward compatibility, responsive scaling, and OS fragmentation across Android versions:
 
-- **Virtual Device:** Google Pixel 4
-- **OS Version:** Android 13.0 (Tiramisu)
-- **API Level:** API 33
-- **Screen Resolution:** 1080 x 2280 px (440 dpi, x86_64 architecture)
-- **Host Platform:** Android Studio Virtual Device Manager (Hardware Acceleration enabled)
-- **Test Binary:** `mda-2.3.0-27.apk` (located in [`/app`](./app/))
-- **Strategy Document:** Available in [`docs/overview/Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf`](./docs/overview/Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf)
+| Environment Parameter     | Primary Device (Modern)                     | Secondary Device (Legacy)                   |
+| :------------------------ | :------------------------------------------ | :------------------------------------------ |
+| **Device Model**          | Google Pixel 4                              | Google Nexus 5X                             |
+| **Android OS Version**    | Android 13.0 (Tiramisu)                     | Android 11.0 (R)                            |
+| **API Level**             | API 33                                      | API 30                                      |
+| **Screen Specifications** | 5.7" Display (1080 x 2280 px, 440 dpi)      | 5.2" Display (1080 x 1920 px, 420 dpi)      |
+| **CPU Architecture**      | x86_64 (Hardware Acceleration)              | x86 (Hardware Acceleration)                 |
+| **Host Tool**             | Android Studio Device Manager               | Android Studio Device Manager               |
+| **Target Application**    | Sauce Labs My Demo App (`mda-2.3.0-27.apk`) | Sauce Labs My Demo App (`mda-2.3.0-27.apk`) |
 
-### Sandbox Setup & Verification
+### Sandbox Setup & Execution
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/huzaifawaheed2/mediplus-qa.git
    cd mediplus-qa
    ```
-2. Launch the **Pixel 4 (API 33)** virtual device in Android Studio.
+2. Launch either the **Pixel 4 (API 33)** or **Nexus 5X (API 30)** virtual device in Android Studio.
 3. Install the sandbox binary:
    ```bash
    adb install app/mda-2.3.0-27.apk
@@ -78,7 +81,25 @@ A comprehensive 15-scenario test case matrix was designed covering both primary 
 - **Checkout Flow (TC_CHK_001 – TC_CHK_003):** Verified transition to checkout, shipping address input validation, payment details processing, and order confirmation generation.
 - **Error Handling & Negative Testing (TC_ERR_001 – TC_ERR_002):** Verified mandatory field validation triggers for blank address inputs and rejected transactions for invalid/expired payment cards.
 
-The full matrix is versioned in [`docs/test-cases/MediPlus_Test_Cases.xlsx`](./docs/test-cases/MediPlus_Test_Cases.xlsx) and actively maintained via Google Sheets.
+---
+
+## Multi-Device Test Execution & Defect Lifecycle Management
+
+All 15 test scenarios were executed across both configured environments (Pixel 4 API 33 vs. Nexus 5X API 30). Comparative execution yielded **11 Passed** test cases and **4 Critical Failures**, alongside observed UI performance latency during item removal on the legacy Nexus 5X device.
+
+### Logged Defect Inventory (IEEE 829 / ISTQB Standard)
+
+A formal Bug Report Log was assembled tracking 5 distinct defects:
+
+|  Defect ID  |  Linked TC  |   Severity   | Priority | Defect Summary & Observed Impact                                                                                             | Status |
+| :---------: | :---------: | :----------: | :------: | :--------------------------------------------------------------------------------------------------------------------------- | :----: |
+| **BUG_001** | TC_AUTH_002 | **Critical** |   High   | **Authentication Bypass:** System accepts incorrect passwords and logs users in without validation error.                    | `OPEN` |
+| **BUG_002** | TC_PROD_001 |  **Medium**  |  Medium  | **Developer Syntax Exposure:** Product titles leak raw test code syntax `Test.allTheThings()`.                               | `OPEN` |
+| **BUG_003** | TC_PROD_001 |   **Low**    |   Low    | **Taxonomy Inconsistency:** Primary variants omit color labels, and long-sleeve pullovers are mislabeled as T-Shirts.        | `OPEN` |
+| **BUG_004** | TC_PROD_002 | **Critical** |   High   | **Application Hard Crash:** Tapping any product beyond initial viewport causes immediate application crash to home launcher. | `OPEN` |
+| **BUG_005** | TC_ERR_002  |  **Major**   |   High   | **Payment Length Bypass:** System processes checkout successfully with short, invalid 5-digit card numbers.                  | `OPEN` |
+
+The complete master workbook containing test design, dual-device execution results, and defect logs is maintained in [`docs/test-cases/MediPlus_Test_Cases.xlsx`](./docs/test-cases/MediPlus_Test_Cases.xlsx). Visual proofs are archived under [`docs/screenshots/Bug_Screenshots/`](./docs/screenshots/Bug_Screenshots/).
 
 ---
 
@@ -86,7 +107,7 @@ The full matrix is versioned in [`docs/test-cases/MediPlus_Test_Cases.xlsx`](./d
 
 - [x] **Milestone 1:** QA Sandbox Architecture Setup & Strategy Overview Brief
 - [x] **Milestone 2:** Functional Test Case Matrix Design & User Flow Mapping
-- [ ] **Milestone 3:** Multi-Device Test Execution & Defect Lifecycle Management
+- [x] **Milestone 3:** Multi-Device Test Execution & Defect Lifecycle Management
 - [ ] **Milestone 4:** 90-Minute Timeboxed Exploratory Testing Charter
 - [ ] **Milestone 5:** Risk-Based Regression Suite & GitHub Actions CI/CD Pipeline
 - [ ] **Milestone 6:** Final QA Deliverables Package Handover & Stakeholder Quality Report
