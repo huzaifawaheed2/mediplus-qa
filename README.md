@@ -31,10 +31,11 @@ mediplus-qa/
 │   └── mda-2.3.0-27.apk                                      # Stand-in APK for sandbox execution
 ├── docs/                                                     # Quality Assurance documentation & artifacts
 │   ├── overview/
-│   │   └── Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf   # Executive project overview brief
+│   │   ├── Task1_MediPlus_Pharmacy_QA_Project_Overview.pdf   # Executive project overview brief
+│   │   └── MediPlus_Exploratory_Testing_Charter_Notes.pdf    # 90-min exploratory testing charter & session notes
 │   ├── screenshots/
 │   │   ├── emulator_setup.png                                # Pixel 4 API 33 emulator verification proof
-│   │   └── Bug_Screenshots/                                  # Visual evidence for logged defects (BUG_001 to BUG_005)
+│   │   └── Bug_Screenshots/                                  # Visual evidence for logged defects (BUG_001 to BUG_008)
 │   └── test-cases/
 │       └── MediPlus_Test_Cases.xlsx                          # Master QA workbook (Test Cases, Execution Matrix, Bug Log)
 └── README.md                                                 # Repository documentation & QA guide
@@ -87,9 +88,9 @@ A comprehensive 15-scenario test case matrix was designed covering both primary 
 
 All 15 test scenarios were executed across both configured environments (Pixel 4 API 33 vs. Nexus 5X API 30). Comparative execution yielded **11 Passed** test cases and **4 Critical Failures**, alongside observed UI performance latency during item removal on the legacy Nexus 5X device.
 
-### Logged Defect Inventory (IEEE 829 / ISTQB Standard)
+### Scripted Defect Inventory (IEEE 829 / ISTQB Standard)
 
-A formal Bug Report Log was assembled tracking 5 distinct defects:
+A formal Bug Report Log was assembled tracking initial functional defects:
 
 |  Defect ID  |  Linked TC  |   Severity   | Priority | Defect Summary & Observed Impact                                                                                             | Status |
 | :---------: | :---------: | :----------: | :------: | :--------------------------------------------------------------------------------------------------------------------------- | :----: |
@@ -99,7 +100,29 @@ A formal Bug Report Log was assembled tracking 5 distinct defects:
 | **BUG_004** | TC_PROD_002 | **Critical** |   High   | **Application Hard Crash:** Tapping any product beyond initial viewport causes immediate application crash to home launcher. | `OPEN` |
 | **BUG_005** | TC_ERR_002  |  **Major**   |   High   | **Payment Length Bypass:** System processes checkout successfully with short, invalid 5-digit card numbers.                  | `OPEN` |
 
-The complete master workbook containing test design, dual-device execution results, and defect logs is maintained in [`docs/test-cases/MediPlus_Test_Cases.xlsx`](./docs/test-cases/MediPlus_Test_Cases.xlsx). Visual proofs are archived under [`docs/screenshots/Bug_Screenshots/`](./docs/screenshots/Bug_Screenshots/).
+---
+
+## Exploratory Testing Charter & Boundary Defect Analysis
+
+A structured 90-minute timeboxed exploratory testing session was conducted on the **Google Pixel 4 (Android 13 / API 33)** emulator, shifting focus from scripted requirements to **unexpected user actions**, aggressive input boundary testing, and session lifecycle interruptions.
+
+### Charter Objectives & Heuristics
+
+- **Input Boundary Tampering:** Tested multi-byte UTF-8, script fragments, emoji injection, and boundary character lengths across shipping address forms.
+- **Payment Gateway Boundaries:** Tested arbitrary non-standard card digit lengths, Luhn algorithm compliance, and past expiration dates.
+- **Session State Isolation:** Evaluated cart data persistence and isolation across user account logout, re-authentication, and process termination.
+
+### Exploratory Defect Log Extension
+
+|  Defect ID  |  Severity  | Priority | Defect Summary & Impact                                                                                                                                                                             | Status |                                               Visual Evidence                                                |
+| :---------: | :--------: | :------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----: | :----------------------------------------------------------------------------------------------------------: |
+| **BUG_006** | **Medium** |  Medium  | **Emoji & Special Character Injection in Address:** Shipping fields accept multi-byte emojis (`Huzaifa😀#`) without sanitization, propagating unvalidated strings directly into the payment screen. | `OPEN` | [`BUG_006.png`](./docs/screenshots/Bug_Screenshots/BUG_006_Emoji_Special_Characters_In_Shipping_Address.png) |
+| **BUG_007** |  **High**  |   High   | **Expired Expiry Dates & Arbitrary Card Lengths Accepted:** Payment gateway accepts past expiration dates (`03/25` in 2026) and arbitrary lengths, bypassing client validation.                     | `OPEN` |    [`BUG_007.png`](./docs/screenshots/Bug_Screenshots/BUG_007_Expired_Card_Date_And_Length_Accepted.png)     |
+| **BUG_008** |  **High**  |   High   | **Cart Session Leak Across User Logout:** Logging out invalidates the user auth token but fails to clear active cart cache, exposing prior user cart items to guest sessions.                       | `OPEN` |      [`BUG_008.png`](./docs/screenshots/Bug_Screenshots/BUG_008_Cart_Session_Persists_After_Logout.png)      |
+
+The complete 2-page exploratory charter, timebox breakdown, heuristics, and engineering recommendations are documented in [`docs/overview/MediPlus_Exploratory_Testing_Charter_Notes.pdf`](./docs/overview/MediPlus_Exploratory_Testing_Charter_Notes.pdf).
+
+The complete master workbook containing test design, dual-device execution results, and full defect logs is maintained in [`docs/test-cases/MediPlus_Test_Cases.xlsx`](./docs/test-cases/MediPlus_Test_Cases.xlsx). Visual proofs for all defects are archived under [`docs/screenshots/Bug_Screenshots/`](./docs/screenshots/Bug_Screenshots/).
 
 ---
 
@@ -108,7 +131,7 @@ The complete master workbook containing test design, dual-device execution resul
 - [x] **Milestone 1:** QA Sandbox Architecture Setup & Strategy Overview Brief
 - [x] **Milestone 2:** Functional Test Case Matrix Design & User Flow Mapping
 - [x] **Milestone 3:** Multi-Device Test Execution & Defect Lifecycle Management
-- [ ] **Milestone 4:** 90-Minute Timeboxed Exploratory Testing Charter
+- [x] **Milestone 4:** 90-Minute Timeboxed Exploratory Testing Charter & Boundary Analysis
 - [ ] **Milestone 5:** Risk-Based Regression Suite & GitHub Actions CI/CD Pipeline
 - [ ] **Milestone 6:** Final QA Deliverables Package Handover & Stakeholder Quality Report
 
