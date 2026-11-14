@@ -1,0 +1,26 @@
+{
+  "name": "mediplus-qa",
+  "version": "1.0.0",
+  "description": "Risk-based regression test suite for MediPlus Pharmacy Android app using Playwright and GitHub Actions",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huzaifawaheed2/mediplus-qa.git"
+  },
+  "keywords": [],
+  "author": "Muhammad Huzaifa Waheed",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/huzaifawaheed2/mediplus-qa/issues"
+  },
+  "homepage": "https://github.com/huzaifawaheed2/mediplus-qa#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}
