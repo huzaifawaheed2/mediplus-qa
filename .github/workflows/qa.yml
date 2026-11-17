@@ -54,6 +54,7 @@ jobs:
           script: |
             adb wait-for-device
             adb shell input keyevent 82
+            adb shell settings put secure show_ime_with_hard_keyboard 0
             adb install -r app/mda-2.3.0-27.apk
             npm test
 
