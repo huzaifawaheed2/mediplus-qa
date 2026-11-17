@@ -3,6 +3,7 @@
 ### Enterprise QA Testing Sandbox & Test Artifacts Repository
 
 [![QA Status](https://img.shields.io/badge/QA%20Status-In%20Progress-0052CC.svg)](#)
+[![Android Regression Suite](https://github.com/huzaifawaheed2/mediplus-qa/actions/workflows/qa.yml/badge.svg)](https://github.com/huzaifawaheed2/mediplus-qa/actions/workflows/qa.yml)
 [![Target Platform](https://img.shields.io/badge/Platform-Android%2013%20%7C%20Android%2011-3DDC84.svg?logo=android&logoColor=white)](#)
 [![Virtual Devices](<https://img.shields.io/badge/Devices-Pixel%204%20(API%2033)%20%7C%20Nexus%205X%20(API%2030)-4285F4.svg?logo=google&logoColor=white>)](#)
 [![Stand-in App](https://img.shields.io/badge/Sandbox%20App-Sauce%20Labs%20v2.3.0-EA4335.svg)](#)
@@ -27,6 +28,9 @@ This sandbox enables the QA team to define quality gates, build comprehensive te
 
 ```text
 mediplus-qa/
+├── .github/
+│   └── workflows/
+│       └── qa.yml                                            # GitHub Actions CI workflow (Android Emulator + Playwright)
 ├── app/
 │   └── mda-2.3.0-27.apk                                      # Stand-in APK for sandbox execution
 ├── docs/                                                     # Quality Assurance documentation & artifacts
@@ -38,6 +42,14 @@ mediplus-qa/
 │   │   └── Bug_Screenshots/                                  # Visual evidence for logged defects (BUG_001 to BUG_008)
 │   └── test-cases/
 │       └── MediPlus_Test_Cases.xlsx                          # Master QA workbook (Test Cases, Execution Matrix, Bug Log)
+├── tests/                                                    # Automated Playwright regression test suite
+│   ├── 01_login.spec.js                                      # TC_AUTH_001: Authentication regression test
+│   ├── 02_product_list.spec.js                               # TC_PROD_001: Catalog & product details regression test
+│   ├── 03_add_to_cart.spec.js                                # TC_CART_001: Add-to-cart & badge counter regression test
+│   └── 04_checkout.spec.js                                   # TC_CHK_001: End-to-end checkout & order placement test
+├── .gitignore                                                # Excluded directories (node_modules, reports, artifacts)
+├── package.json                                              # Node.js project manifest & execution scripts
+├── playwright.config.js                                      # Playwright test runner configuration
 └── README.md                                                 # Repository documentation & QA guide
 ```
 
@@ -126,13 +138,53 @@ The complete master workbook containing test design, dual-device execution resul
 
 ---
 
+## Automated Risk-Based Regression Suite (Playwright & CI/CD)
+
+To satisfy **Task 5**, a comprehensive risk-based automated regression suite was assembled using **Playwright Mobile** (`@playwright/test` v1.65.0) over native Android ADB / UIAutomator. The suite executes automatically on every `push` and `pull_request` via **GitHub Actions** on hosted Ubuntu runners equipped with hardware-accelerated (KVM) Android Emulators (API 33).
+
+### Automated Regression Test Inventory
+
+| Test Spec File                                                     | Test Case ID  | User Journey Flow   | Verification Focus & Assertions                                                                                                                                  | Execution Status |
+| :----------------------------------------------------------------- | :------------ | :------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------: |
+| [`tests/01_login.spec.js`](./tests/01_login.spec.js)               | `TC_AUTH_001` | Authentication      | Valid login credentials (`bod@example.com`), session token creation, and logout menu presence                                                                    |     `PASSED`     |
+| [`tests/02_product_list.spec.js`](./tests/02_product_list.spec.js) | `TC_PROD_001` | Catalog & Details   | Catalog grid rendering, product title assertion, detail page transition, and price verification                                                                  |     `PASSED`     |
+| [`tests/03_add_to_cart.spec.js`](./tests/03_add_to_cart.spec.js)   | `TC_CART_001` | Cart Management     | Add-to-cart button trigger, real-time cart badge counter increment (`1`), and cart item quantity assertion                                                       |     `PASSED`     |
+| [`tests/04_checkout.spec.js`](./tests/04_checkout.spec.js)         | `TC_CHK_001`  | End-to-End Checkout | Complete purchase flow: Product add ➔ Cart review ➔ Dynamic auth handle ➔ Shipping address input ➔ Payment processing ➔ Order confirmation (`Checkout Complete`) |     `PASSED`     |
+
+### CI/CD Workflow Pipeline (`.github/workflows/qa.yml`)
+
+The continuous integration pipeline is defined in [`.github/workflows/qa.yml`](./.github/workflows/qa.yml) and executes the following automated lifecycle on `ubuntu-latest`:
+
+1. **Repository Checkout & Setup:** Checks out repository, provisions Node.js 20 LTS, and installs pinned dependencies via `npm ci`.
+2. **KVM Hardware Acceleration:** Configures Linux kernel udev rules (`/dev/kvm`) granting full virtualization permissions for high-speed emulator execution.
+3. **Automated Emulator Provisioning:** Leverages `reactivecircus/android-emulator-runner@v2` to spin up a headless Pixel Android 13 (API 33) AVD.
+4. **Binary Deployment & Test Execution:** Installs `app/mda-2.3.0-27.apk` onto the booted virtual device and triggers `npm test`.
+5. **Artifact Publishing:** Archives full HTML test execution reports and traces (`playwright-report/`) retained for 7 days.
+
+### Running Regression Tests Locally
+
+Ensure the Android emulator is active, then execute:
+
+```bash
+# Run all automated regression tests
+npm test
+
+# Run a specific test spec
+npx playwright test tests/01_login.spec.js
+npx playwright test tests/02_product_list.spec.js
+npx playwright test tests/03_add_to_cart.spec.js
+npx playwright test tests/04_checkout.spec.js
+```
+
+---
+
 ## QA Engineering Milestones & Deliverables
 
 - [x] **Milestone 1:** QA Sandbox Architecture Setup & Strategy Overview Brief
 - [x] **Milestone 2:** Functional Test Case Matrix Design & User Flow Mapping
 - [x] **Milestone 3:** Multi-Device Test Execution & Defect Lifecycle Management
 - [x] **Milestone 4:** 90-Minute Timeboxed Exploratory Testing Charter & Boundary Analysis
-- [ ] **Milestone 5:** Risk-Based Regression Suite & GitHub Actions CI/CD Pipeline
+- [x] **Milestone 5:** Risk-Based Regression Suite & GitHub Actions CI/CD Pipeline
 - [ ] **Milestone 6:** Final QA Deliverables Package Handover & Stakeholder Quality Report
 
 ---
